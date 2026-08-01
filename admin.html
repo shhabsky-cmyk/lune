@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة الإدارة — LUNE</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>const API_BASE = '';</script>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────
+const SUPER_PIN   = 'mokkraz121';
+const SUBS_API    = API_BASE + '/api/submissions';
+const STAFF_API   = API_BASE + '/api/staff';
+
+const RANKS = ['لاعب','عضو','موظف','مشرف','Admin','مدير','مدير أعلى','مطور'];
+const RANK_COLORS = { 'مطور':'#a78bfa','مدير أعلى':'#ef4444','مدير':'#f97316','مشرف':'#3b82f6','موظف':'#22c55e','عضو':'#f2a515','لاعب':'rgba(255,255,255,0.5)','Admin':'#f2a515' };
+
+// ── State ───────────────────────────────────────────
+let role = null, staffName = '', tab = 'submissions';
+let submissions = [], ranks = [], staff = [], codeInfo = null, codeSeconds = 0;
+let selectedSub = null, searchSub = '', filterSub = 'all';
+let searchRank = '', showRankForm = false;
+let rankForm = { playerName:'', email:'', rank: RANKS[0], note:'' };
+let showStaffForm = false, staffForm = { name:'', kazd:'', pin:'' };
+let confirmFire = null, codeTimer = null, pollTimer = null;
+
+// ── Render ──────────────────────────────────────────
+const app = document.getElementById('app');
+function render() { app.innerHTML = role ? dashboardHtml() : loginHtml(); }
+
+// ══ LOGIN ═══════════════════════════════════════════
+function loginHtml() {
+  return `
+    <div class="login-wrap">
+      <div class="login-glow" style="background:radial-gradient(ellipse at center,rgba(242,165,21,0.08) 0%,transparent 65%);"></div>
+      <div class="login-card" id="loginCard">
+        <div class="login-icon" style="border-color:rgba(242,165,21,0.25);background:rgba(242,165,21,0.12);">
+          <svg style="width:30px;height:30px;stroke:var(--gold);fill:none;" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+        </div>
+        <div style="text-align:center;margin-bottom:32px;">
+          <h1 style="font-size:22px;color:#fff;margin-bottom:4px;">لوحة الإدارة</h1>
+          <p style="color:rgba(255,255,255,0.45);font-size:14px;">أدخل الكود السري للمتابعة</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <input type="password" id="pinInput" class="input" placeholder="●●●●●●●●"
+            style="text-align:center;font-size:22px;letter-spacing:0.2em;height:56px;"
+            onkeydown="if(event.key==='Enter')attemptLogin()" />
+          <div id="loginError" class="error-msg" style="display:none;"></div>
+          <button class="btn-gold btn-h14" style="width:100%;" onclick="attemptLogin()" id="loginBtn">دخول</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function attemptLogin() {
+  const pin = document.getElementById('pinInput').value.trim();
+  if (!pin) return;
+  const btn = document.getElementById('loginBtn');
+  const card = document.getElementById('loginCard');
+  btn.disabled = true; btn.textContent = '...';
+
+  if (pin === SUPER_PIN) { role = 'super'; staffName = ''; init(); return; }
+
+  try {
+    const res = await fetch(STAFF_API + '/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin }),
+    });
+    const data = await res.json();
+    if (data.match) { role = 'viewer'; staffName = data.name; init(); return; }
+  } catch {}
+  showLoginErr('الكود غير صحيح، حاول مجدداً');
+  card.classList.add('shake');
+  setTimeout(() => card.classList.remove('shake'), 600);
+  btn.disabled = false; btn.textContent = 'دخول';
+}
+function showLoginErr(m) { const e=document.getElementById('loginError'); e.textContent=m; e.style.display='block'; }
+
+// ══ INIT ════════════════════════════════════════════
+async function init() {
+  await Promise.all([loadSubs(), loadRanks(), role==='super' ? loadStaff() : Promise.resolve()]);
+  if (role === 'super') { fetchCode(); codeTimer = setInterval(fetchCode, 30000); }
+  pollTimer = setInterval(loadSubs, 5000);
+  render();
+}
+
+// ══ DASHBOARD ═══════════════════════════════════════
+function dashboardHtml() {
+  const isSuper = role === 'super';
+  const tabs = isSuper
+    ? [['submissions','طلبات الانضمام'], ['ranks','الرتب'], ['staff','قائمة الإدارة']]
+    : [['submissions','طلبات الانضمام']];
+
+  return `
+    <div class="topbar">
+      <div class="topbar-inner">
+        <div class="flex items-center gap-3">
+          <svg style="width:20px;height:20px;stroke:var(--gold);fill:none;" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#fff;letter-spacing:0.12em;">LUNE</span>
+          <span style="color:rgba(255,255,255,0.40);font-size:14px;">/ ${isSuper ? 'مدير عام' : (staffName || 'موظف')}</span>
+        </div>
+        <button onclick="logout()" style="display:flex;align-items:center;gap:6px;font-size:14px;color:rgba(255,255,255,0.50);cursor:pointer;">
+          <svg style="width:15px;height:15px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg>
+          خروج
+        </button>
+      </div>
+    </div>
+
+    <div style="max-width:1200px;margin:0 auto;padding:32px 24px 48px;">
+      ${tabs.length > 1 ? `
+        <div class="tab-bar">
+          ${tabs.map(([k,l]) => `<button class="tab-btn ${tab===k?'active':''}" onclick="tab='${k}';render();">${l}</button>`).join('')}
+        </div>` : ''}
+      ${tab==='submissions' ? subsHtml(isSuper) : tab==='ranks' ? ranksHtml() : staffHtml()}
+    </div>`;
+}
+
+function logout() {
+  role = null; staffName = ''; tab = 'submissions';
+  submissions = []; ranks = []; staff = []; codeInfo = null;
+  selectedSub = null; searchSub = ''; filterSub = 'all';
+  showRankForm = false; showStaffForm = false; confirmFire = null;
+  clearInterval(codeTimer); clearInterval(pollTimer);
+  render();
+}
+
+// ══ SUBMISSIONS ══════════════════════════════════════
+function subsHtml(canDelete) {
+  const list = submissions.filter(s => {
+    const okF = filterSub==='all'?true: filterSub==='passed'?s.passed:!s.passed;
+    const q = searchSub.trim().toLowerCase();
+    return okF && (!q || s.name.toLowerCase().includes(q) || s.charName.toLowerCase().includes(q));
+  });
+  const pc = submissions.filter(s=>s.passed).length;
+
+  return `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value" style="color:var(--gold);">${submissions.length}</div><div class="stat-label">إجمالي الطلبات</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--green);">${pc}</div><div class="stat-label">ناجح</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--red);">${submissions.length-pc}</div><div class="stat-label">راسب</div></div>
+    </div>
+    <div class="controls-bar">
+      <div class="search-wrap" style="flex:1;">
+        <svg viewBox="0 0 24 24" stroke-width="2" style="stroke:rgba(255,255,255,0.40);fill:none;"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z"/></svg>
+        <input type="text" class="input input-sm" placeholder="ابحث بالاسم..." value="${searchSub}" oninput="searchSub=this.value;selectedSub=null;render();" style="width:100%;padding-right:38px;" />
+      </div>
+      <button class="filter-btn ${filterSub==='all'?'active':''}" onclick="filterSub='all';render();">الكل</button>
+      <button class="filter-btn ${filterSub==='passed'?'active':''}" onclick="filterSub='passed';render();">ناجح</button>
+      <button class="filter-btn ${filterSub==='failed'?'active':''}" onclick="filterSub='failed';render();">راسب</button>
+      <button class="icon-btn" onclick="loadSubs().then(render)" title="تحديث"><svg viewBox="0 0 24 24" stroke-width="2" style="stroke:currentColor;fill:none;"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg></button>
+      ${canDelete && submissions.length > 0 ? `<button class="icon-btn icon-btn-red" onclick="clearAllSubs()" title="حذف الكل"><svg viewBox="0 0 24 24" stroke-width="2" style="stroke:currentColor;fill:none;"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg></button>` : ''}
+    </div>
+    <div style="display:flex;gap:20px;min-height:420px;">
+      <div class="data-table" style="flex:1;">
+        ${list.length === 0
+          ? `<div class="table-empty"><svg viewBox="0 0 24 24" stroke-width="1.5" style="stroke:currentColor;fill:none;width:36px;height:36px;opacity:.3;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg><span>لا توجد طلبات</span></div>`
+          : list.map(s => `
+            <button class="subs-list-row ${selectedSub&&selectedSub.id===s.id?'active':''}" onclick="selectedSub=submissions.find(x=>x.id==='${s.id}');render();">
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+                  <span style="color:#fff;font-weight:600;font-size:14px;">${s.name}</span>
+                  <span style="color:rgba(255,255,255,0.35);">·</span>
+                  <span style="color:rgba(255,255,255,0.50);font-size:12px;">${s.charName}</span>
+                </div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.38);">${new Date(s.submittedAt).toLocaleString('ar-SA')}</div>
+              </div>
+              ${s.passed
+                ? `<svg style="width:18px;height:18px;stroke:var(--green);fill:none;" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`
+                : `<svg style="width:18px;height:18px;stroke:var(--red);fill:none;" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`}
+            </button>`).join('')}
+      </div>
+      ${selectedSub ? `
+        <div class="detail-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <span class="badge ${selectedSub.passed?'badge-green':'badge-red'}">${selectedSub.passed?'ناجح':'راسب'}</span>
+            ${canDelete ? `<button onclick="deleteSub('${selectedSub.id}')" style="color:rgba(255,255,255,0.35);cursor:pointer;" title="حذف"><svg style="width:15px;height:15px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg></button>` : ''}
+          </div>
+          <div class="detail-field"><div class="lbl">الاسم</div><div class="val">${selectedSub.name}</div></div>
+          <div class="detail-field"><div class="lbl">العمر</div><div class="val">${selectedSub.age}</div></div>
+          <div class="detail-field"><div class="lbl">اسم الشخصية</div><div class="val">${selectedSub.charName}</div></div>
+          <div class="divider"></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:8px;">إجابات الاختبار</div>
+          <div class="answer-row"><div><div class="qlbl">RDM</div><div class="qval">${selectedSub.rdm}</div></div>${selectedSub.rdmCorrect?chk():x()}</div>
+          <div class="answer-row"><div><div class="qlbl">VDM</div><div class="qval">${selectedSub.vdm}</div></div>${selectedSub.vdmCorrect?chk():x()}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:12px;">${new Date(selectedSub.submittedAt).toLocaleString('ar-SA')}</div>
+        </div>` : ''}
+    </div>`;
+}
+
+// ══ RANKS ════════════════════════════════════════════
+function ranksHtml() {
+  const filtered = ranks.filter(r => {
+    const q = searchRank.trim().toLowerCase();
+    return !q || r.playerName.toLowerCase().includes(q) || r.email.toLowerCase().includes(q) || r.rank.includes(q);
+  });
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div><h2 style="font-size:17px;font-weight:700;color:#fff;">إدارة الرتب</h2><p style="color:rgba(255,255,255,0.50);font-size:14px;">${ranks.length} لاعب مسجّل</p></div>
+      <button class="btn-gold btn-h11" onclick="showRankForm=!showRankForm;render();">+ إضافة لاعب</button>
+    </div>
+    ${showRankForm ? `
+      <div class="form-card" style="margin-bottom:24px;">
+        <h3 style="font-weight:700;color:#fff;margin-bottom:16px;">بيانات اللاعب</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>اسم اللاعب *</label><input type="text" placeholder="اسم اللاعب في السيرفر" oninput="rankForm.playerName=this.value" value="${rankForm.playerName}" /></div>
+          <div class="form-group"><label>الإيميل *</label><input type="email" placeholder="example@email.com" oninput="rankForm.email=this.value" value="${rankForm.email}" /></div>
+          <div class="form-group"><label>الرتبة</label><select onchange="rankForm.rank=this.value">${RANKS.map(r=>`<option value="${r}" ${rankForm.rank===r?'selected':''}>${r}</option>`).join('')}</select></div>
+          <div class="form-group"><label>ملاحظة (اختياري)</label><input type="text" placeholder="أي ملاحظة..." oninput="rankForm.note=this.value" value="${rankForm.note}" /></div>
+        </div>
+        <div id="rankErr" class="error-msg" style="text-align:right;display:none;"></div>
+        <div class="form-actions">
+          <button class="btn-gold btn-h11" onclick="addRank()">حفظ</button>
+          <button class="btn-ghost btn-h11" onclick="showRankForm=false;render();">إلغاء</button>
+        </div>
+      </div>` : ''}
+    <div class="search-wrap" style="margin-bottom:20px;">
+      <svg viewBox="0 0 24 24" stroke-width="2" style="stroke:rgba(255,255,255,0.40);fill:none;"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z"/></svg>
+      <input type="text" class="input input-sm" style="width:100%;padding-right:38px;" placeholder="ابحث بالاسم أو الإيميل..." value="${searchRank}" oninput="searchRank=this.value;render();" />
+    </div>
+    <div class="data-table">
+      <div class="table-head" style="grid-template-columns:3fr 4fr 2fr 2fr 1fr;">
+        <div>اللاعب</div><div>الإيميل</div><div>الرتبة</div><div>التاريخ</div><div></div>
+      </div>
+      ${filtered.length === 0
+        ? `<div class="table-empty" style="min-height:180px;"><svg viewBox="0 0 24 24" stroke-width="1.5" style="stroke:currentColor;fill:none;width:34px;height:34px;opacity:.3;"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"/></svg><span>لا يوجد لاعبون مسجّلون بعد</span></div>`
+        : filtered.map((r,i) => `
+          <div class="table-row" style="grid-template-columns:3fr 4fr 2fr 2fr 1fr;background:${i%2===0?'transparent':'rgba(255,255,255,0.01)'}">
+            <div><div style="color:#fff;font-weight:600;">${r.playerName}</div>${r.note?`<div style="color:rgba(255,255,255,0.40);font-size:12px;">${r.note}</div>`:''}</div>
+            <div style="color:rgba(255,255,255,0.55);font-size:13px;">${r.email}</div>
+            <div><span style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;background:${(RANK_COLORS[r.rank]||'#f2a515')}18;color:${RANK_COLORS[r.rank]||'#f2a515'};border:1px solid ${(RANK_COLORS[r.rank]||'#f2a515')}30;">${r.rank}</span></div>
+            <div style="color:rgba(255,255,255,0.40);font-size:12px;">${new Date(r.assignedAt).toLocaleDateString('ar-SA')}</div>
+            <div style="text-align:left;"><button onclick="deleteRank('${r.id}')" style="color:rgba(255,255,255,0.30);cursor:pointer;" title="حذف"><svg style="width:14px;height:14px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg></button></div>
+          </div>`).join('')}
+    </div>`;
+}
+
+// ══ STAFF ════════════════════════════════════════════
+function staffHtml() {
+  const expired = codeInfo && (!codeInfo.active || codeSeconds <= 0);
+  return `
+    <!-- Code Card -->
+    <div class="code-card ${expired?'expired':'active'}">
+      <div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.50);margin-bottom:4px;">كود البوابة الحالي</div>
+        ${!codeInfo
+          ? `<div style="font-size:24px;font-weight:700;font-family:monospace;color:rgba(255,255,255,0.30);">------</div>`
+          : expired
+            ? `<div style="font-size:17px;font-weight:700;color:var(--red);">انتهت صلاحية الكود — أنشئ كوداً جديداً</div>`
+            : `<div class="code-display">${codeInfo.code}</div>
+               <div style="font-size:12px;color:rgba(255,255,255,0.40);margin-top:4px;">ينتهي خلال: <span style="font-family:monospace;" id="codeCountdown">${fmtTime(codeSeconds)}</span></div>`}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <button onclick="generateCode()" id="genBtn" class="${expired?'':'btn-gold'} btn-sm" style="${expired?'background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.40);color:#f87171;':''}display:flex;align-items:center;gap:6px;">
+          <svg style="width:14px;height:14px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+          ${expired ? 'إنشاء كود جديد' : 'تجديد الكود'}
+        </button>
+        <div style="font-size:12px;color:rgba(255,255,255,0.35);">رابط البوابة: <span style="font-family:monospace;">lune-gate.html</span></div>
+      </div>
+    </div>
+
+    <!-- Staff list -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div><h2 style="font-size:17px;font-weight:700;color:#fff;">قائمة الإدارة</h2><p style="color:rgba(255,255,255,0.50);font-size:14px;">${staff.length} موظف مسجّل</p></div>
+      <button class="btn-gold btn-h11" onclick="showStaffForm=!showStaffForm;render();">+ إضافة موظف</button>
+    </div>
+    ${showStaffForm ? `
+      <div class="form-card">
+        <h3 style="font-weight:700;color:#fff;margin-bottom:16px;">بيانات الموظف الجديد</h3>
+        <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="form-group"><label>اسم الموظف *</label><input type="text" placeholder="أبو سلطان" oninput="staffForm.name=this.value" value="${staffForm.name}" /></div>
+          <div class="form-group"><label>الكزد الخاص بالبوابة *</label><input type="text" placeholder="sultan07" style="font-family:monospace;" oninput="staffForm.kazd=this.value" value="${staffForm.kazd}" /></div>
+          <div class="form-group"><label>كود لوحة الأدمن * (6+ أحرف)</label><input type="text" placeholder="كود الأدمن" style="font-family:monospace;" oninput="staffForm.pin=this.value" value="${staffForm.pin}" /></div>
+        </div>
+        <div id="staffErr" class="error-msg" style="text-align:right;display:none;margin-bottom:8px;"></div>
+        <div class="form-actions">
+          <button class="btn-gold btn-h11" onclick="addStaff()">إضافة</button>
+          <button class="btn-ghost btn-h11" onclick="showStaffForm=false;render();">إلغاء</button>
+        </div>
+      </div>` : ''}
+    <div class="data-table">
+      <div class="table-head" style="grid-template-columns:3fr 2fr 2fr 1fr;">
+        <div>الموظف</div><div>الكزد</div><div>تاريخ الإضافة</div><div></div>
+      </div>
+      ${staff.length === 0
+        ? `<div class="table-empty" style="min-height:180px;"><svg viewBox="0 0 24 24" stroke-width="1.5" style="stroke:currentColor;fill:none;width:34px;height:34px;opacity:.3;"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg><span>لا يوجد موظفون مضافون بعد</span></div>`
+        : staff.map((s,i) => `
+          <div class="table-row" style="grid-template-columns:3fr 2fr 2fr 1fr;background:${i%2===0?'transparent':'rgba(255,255,255,0.01)'}">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:32px;height:32px;border-radius:8px;background:rgba(242,165,21,0.10);border:1px solid rgba(242,165,21,0.20);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg style="width:15px;height:15px;stroke:var(--gold);fill:none;" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+              </div>
+              <span style="color:#fff;font-weight:600;">${s.name}</span>
+            </div>
+            <div style="font-family:monospace;color:rgba(255,255,255,0.55);font-size:13px;">${s.kazd}</div>
+            <div style="color:rgba(255,255,255,0.45);font-size:13px;">${new Date(s.addedAt).toLocaleDateString('ar-SA')}</div>
+            <div style="text-align:left;">
+              ${confirmFire === s.id
+                ? `<div style="display:flex;align-items:center;gap:6px;">
+                     <span style="font-size:12px;color:rgba(255,255,255,0.50);">تأكيد؟</span>
+                     <button onclick="fireStaff('${s.id}')" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#fff;background:rgba(239,68,68,0.20);border:1px solid rgba(239,68,68,0.35);cursor:pointer;">نعم</button>
+                     <button onclick="confirmFire=null;render();" style="padding:4px 10px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.50);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);cursor:pointer;">لا</button>
+                   </div>`
+                : `<button onclick="confirmFire='${s.id}';render();" style="padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;color:#f87171;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.20);cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+                     <svg style="width:12px;height:12px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
+                     فصل
+                   </button>`}
+            </div>
+          </div>`).join('')}
+    </div>`;
+}
+
+// ══ HELPERS ══════════════════════════════════════════
+function chk() { return `<svg style="width:15px;height:15px;stroke:var(--green);fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`; }
+function x()   { return `<svg style="width:15px;height:15px;stroke:var(--red);fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`; }
+function fmtTime(s) {
+  const d = Math.floor(s/86400), h = Math.floor((s%86400)/3600), m = Math.floor((s%3600)/60), sc = s%60;
+  if(d>0) return `${d}ي ${pad(h)}:${pad(m)}:${pad(sc)}`;
+  return `${pad(h)}:${pad(m)}:${pad(sc)}`;
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+
+// ══ DATA LOADERS ═════════════════════════════════════
+async function loadSubs() {
+  try { const r = await fetch(SUBS_API); submissions = (await r.json()).sort((a,b) => new Date(b.submittedAt)-new Date(a.submittedAt)); } catch {}
+}
+function loadRanks() { try { ranks = JSON.parse(localStorage.getItem('lune_admin_ranks') || '[]').sort((a,b)=>new Date(b.assignedAt)-new Date(a.assignedAt)); } catch { ranks = []; } }
+async function loadStaff() {
+  try { const r = await fetch(STAFF_API); staff = (await r.json()).sort((a,b)=>new Date(b.addedAt)-new Date(a.addedAt)); } catch {}
+}
+async function fetchCode() {
+  try { const r = await fetch(STAFF_API+'/rotating-code'); codeInfo = await r.json(); if(codeInfo.active) { codeSeconds = codeInfo.expiresInSec; startCountdown(); } } catch {}
+}
+function startCountdown() {
+  clearInterval(window._cdTimer);
+  window._cdTimer = setInterval(() => {
+    if (codeSeconds > 0) { codeSeconds--; const el = document.getElementById('codeCountdown'); if(el) el.textContent = fmtTime(codeSeconds); }
+    else { clearInterval(window._cdTimer); codeInfo = { active: false }; render(); }
+  }, 1000);
+}
+
+// ══ ACTIONS ══════════════════════════════════════════
+async function deleteSub(id) {
+  await fetch(SUBS_API + '/' + id, { method: 'DELETE' });
+  submissions = submissions.filter(s => s.id !== id);
+  if (selectedSub && selectedSub.id === id) selectedSub = null;
+  render();
+}
+async function clearAllSubs() {
+  if (!confirm('هل أنت متأكد من حذف جميع الطلبات؟')) return;
+  await fetch(SUBS_API, { method: 'DELETE' });
+  submissions = []; selectedSub = null; render();
+}
+function addRank() {
+  const errEl = document.getElementById('rankErr');
+  if (!rankForm.playerName.trim()) { errEl.textContent='أدخل اسم اللاعب'; errEl.style.display='block'; return; }
+  if (!rankForm.email.trim()) { errEl.textContent='أدخل الإيميل'; errEl.style.display='block'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rankForm.email)) { errEl.textContent='الإيميل غير صحيح'; errEl.style.display='block'; return; }
+  ranks.unshift({ id: Date.now().toString(), playerName: rankForm.playerName.trim(), email: rankForm.email.trim(), rank: rankForm.rank, note: rankForm.note.trim(), assignedAt: new Date().toISOString() });
+  localStorage.setItem('lune_admin_ranks', JSON.stringify(ranks));
+  rankForm = { playerName:'', email:'', rank: RANKS[0], note:'' };
+  showRankForm = false; render();
+}
+function deleteRank(id) {
+  ranks = ranks.filter(r => r.id !== id);
+  localStorage.setItem('lune_admin_ranks', JSON.stringify(ranks));
+  render();
+}
+async function addStaff() {
+  const errEl = document.getElementById('staffErr');
+  if (!staffForm.name.trim()) { errEl.textContent='أدخل اسم الموظف'; errEl.style.display='block'; return; }
+  if (!staffForm.kazd.trim()) { errEl.textContent='أدخل الكزد'; errEl.style.display='block'; return; }
+  if (staffForm.pin.trim().length < 6) { errEl.textContent='كود الأدمن 6 أحرف على الأقل'; errEl.style.display='block'; return; }
+  try {
+    const res = await fetch(STAFF_API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name:staffForm.name.trim(), kazd:staffForm.kazd.trim(), pin:staffForm.pin.trim() }) });
+    if (res.status === 409) { const d = await res.json(); errEl.textContent = d.error==='kazd_taken'?'هذا الكزد مستخدم':'هذا الكود مستخدم'; errEl.style.display='block'; return; }
+    if (!res.ok) { errEl.textContent='حدث خطأ، حاول مجدداً'; errEl.style.display='block'; return; }
+    staffForm = { name:'', kazd:'', pin:'' };
+    showStaffForm = false;
+    await loadStaff();
+    render();
+  } catch { errEl.textContent='تعذر الاتصال'; errEl.style.display='block'; }
+}
+async function fireStaff(id) {
+  await fetch(STAFF_API + '/' + id, { method: 'DELETE' });
+  staff = staff.filter(s => s.id !== id);
+  confirmFire = null; render();
+}
+async function generateCode() {
+  document.getElementById('genBtn').disabled = true;
+  try {
+    const res = await fetch(STAFF_API + '/rotating-code/generate', { method: 'POST' });
+    codeInfo = await res.json();
+    codeSeconds = codeInfo.expiresInSec || 0;
+    startCountdown();
+    render();
+  } catch {}
+}
+
+render();
+</script>
+</body>
+</html>

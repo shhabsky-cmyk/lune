@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LUNE ROLEPLAY — عش قصتك في بلدة القمر</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- ضع رابط API هنا لو السيرفر على دومين ثاني -->
+  <script>const API_BASE = '';</script>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══════════════════════════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-logo">
+      <img src="logo.png" alt="LUNE" onerror="this.style.display='none'" />
+      <span class="navbar-logo-text font-display">LUNE</span>
+    </a>
+    <div class="navbar-links">
+      <a href="#hero">الرئيسية</a>
+      <a href="#quiz">التقديم</a>
+      <a href="#discord">تواصل معنا</a>
+      <a href="rules.html">القوانين</a>
+    </div>
+    <a href="https://discord.gg/CXFx99aKjc" target="_blank" class="btn-nav-cta">انضم الآن</a>
+  </div>
+</nav>
+
+<!-- ══ HERO ════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg">
+    <img src="hero-bg.jpg" alt="LUNE City" />
+    <div class="hero-gradient"></div>
+    <div class="hero-glow"></div>
+  </div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="badge badge-gold" style="margin-bottom:24px;">
+      <span class="pulse" style="width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;"></span>
+      السيرفر متاح الآن
+    </div>
+    <h1 class="hero-title font-display">LUNE</h1>
+    <h2 class="hero-subtitle">عش قصتك في بلدة القمر</h2>
+    <p class="hero-desc">تجربة حياة واقعية استثنائية في عالم مليء بالتفاصيل، الجريمة، الفخامة، والقصص التي لا تُنسى.</p>
+    <div class="hero-buttons">
+      <a href="#quiz" class="btn-gold btn-h14">قدّم طلبك الآن</a>
+      <a href="rules.html" class="btn-ghost btn-h14">القوانين</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ QUIZ ════════════════════════════════════════ -->
+<section id="quiz">
+  <div class="quiz-glow"></div>
+  <div class="container-sm" style="position:relative;z-index:10;">
+    <div style="text-align:center;margin-bottom:40px;">
+      <h2 style="font-size:clamp(28px,5vw,44px);color:#fff;margin-bottom:12px;">طلب الانضمام</h2>
+      <p style="color:rgba(255,255,255,0.65);font-size:16px;">أجب على الأسئلة التالية للتقدم للانضمام لسيرفر LUNE</p>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgress" style="width:0%"></div></div>
+      <div class="quiz-body" id="quizBody"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DISCORD CTA ══════════════════════════════════ -->
+<section id="discord">
+  <div class="container-md" style="position:relative;z-index:10;">
+    <div class="discord-card">
+      <div class="discord-glow"></div>
+      <div style="position:relative;z-index:10;">
+        <a href="https://discord.gg/CXFx99aKjc" target="_blank" class="discord-icon">
+          <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.12 18.12c2.08 1.524 4.1 2.45 6.088 3.062a.077.077 0 0 0 .084-.027c.47-.64.893-1.315 1.254-2.023a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.243 2.012a.076.076 0 0 0 .084.028c1.994-.612 4.013-1.538 6.094-3.062a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+        </a>
+        <h2 style="font-size:clamp(24px,4vw,44px);color:#fff;margin-bottom:24px;">انضم لمجتمع LUNE</h2>
+        <p style="font-size:17px;color:rgba(255,255,255,0.75);max-width:600px;margin:0 auto 40px;line-height:1.7;">
+          تواصل مع آلاف اللاعبين، تعرف على التحديثات الحصرية، وكن جزءاً من أسرع مجتمعات جراند حياة واقعية نمواً في الشرق الأوسط.
+        </p>
+        <a href="https://discord.gg/CXFx99aKjc" target="_blank" class="btn-discord btn-h14">
+          <svg style="width:22px;height:22px;fill:#fff;" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.12 18.12c2.08 1.524 4.1 2.45 6.088 3.062a.077.077 0 0 0 .084-.027c.47-.64.893-1.315 1.254-2.023a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.243 2.012a.076.076 0 0 0 .084.028c1.994-.612 4.013-1.538 6.094-3.062a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+          دخول الديسكورد
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ═══════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div style="grid-column:span 2;">
+        <div class="footer-logo font-display">LUNE</div>
+        <p class="footer-desc">سيرفر حياة واقعية حصري في GTA V يقدم تجربة لعب سينمائية وعميقة. نجمع بين أحدث التقنيات وأفضل مجتمع لنقدم تجربة لا تُنسى.</p>
+        <div class="flex gap-3">
+          <a href="https://discord.gg/CXFx99aKjc" target="_blank" class="social-btn">
+            <svg style="width:18px;height:18px;fill:currentColor;" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.12 18.12c2.08 1.524 4.1 2.45 6.088 3.062a.077.077 0 0 0 .084-.027c.47-.64.893-1.315 1.254-2.023a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.243 2.012a.076.076 0 0 0 .084.028c1.994-.612 4.013-1.538 6.094-3.062a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>روابط سريعة</h4>
+        <ul>
+          <li><a href="#hero">الرئيسية</a></li>
+          <li><a href="#quiz">طلب الانضمام</a></li>
+          <li><a href="#discord">تواصل معنا</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>الدعم والقوانين</h4>
+        <ul>
+          <li><a href="rules.html">قوانين السيرفر</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> LUNE ROLEPLAY. جميع الحقوق محفوظة.</span>
+      <span>Not affiliated with Rockstar Games, Take-Two Interactive or FiveM.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── Config ──────────────────────────────────────────
+const DISCORD = 'https://discord.gg/CXFx99aKjc';
+const SUBS_API = API_BASE + '/api/submissions';
+
+// ── Year ────────────────────────────────────────────
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// ── Navbar scroll ────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 30);
+});
+
+// ══ QUIZ ═══════════════════════════════════════════
+const questions = [
+  { type: 'text',   id: 'name',     label: 'اسمك:',                 placeholder: 'اكتب اسمك الحقيقي' },
+  { type: 'text',   id: 'age',      label: 'عمرك:',                 placeholder: 'مثال: 20' },
+  { type: 'text',   id: 'charName', label: 'اسم الشخصية الأولى:',    placeholder: 'الاسم الذي ستلعب به' },
+  { type: 'choice', id: 'rdm',      label: 'ما معنى RDM؟',
+    options: ['تصديم عشوائي','قتل عشوائي','عدم تقدير حياتك','تواصل خارجي'],
+    correct: 'قتل عشوائي' },
+  { type: 'choice', id: 'vdm',      label: 'ما معنى VDM؟',
+    options: ['قتل عشوائي','تصديم عشوائي','عدم تقدير حياتك','تواصل خارجي'],
+    correct: 'تصديم عشوائي' },
+];
+
+let quizStep = 0;
+let quizAnswers = {};
+const body = document.getElementById('quizBody');
+const progressBar = document.getElementById('quizProgress');
+
+function setProgress(p) {
+  progressBar.style.width = p + '%';
+}
+
+function renderQuiz() {
+  body.innerHTML = '';
+  const total = questions.length;
+
+  if (quizStep === 0) {
+    setProgress(0);
+    body.innerHTML = `
+      <div class="fade-in" style="text-align:center;">
+        <div style="width:80px;height:80px;margin:0 auto 24px;border-radius:16px;background:linear-gradient(135deg,#f2a515,#fcd34d);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:#0e0b05;box-shadow:0 0 30px rgba(242,165,21,0.35);">?</div>
+        <h3 style="font-size:22px;color:#fff;margin-bottom:12px;">مرحباً بك في اختبار الانضمام</h3>
+        <p style="color:rgba(255,255,255,0.65);margin-bottom:32px;line-height:1.7;">
+          سيتضمن الاختبار ${total} أسئلة بسيطة تشمل معلوماتك الشخصية وفهمك لقوانين السيرفر.<br>النتائج سترسل تلقائياً لفريق الإدارة.
+        </p>
+        <button class="btn-gold btn-h14" onclick="quizStep=1;renderQuiz();">ابدأ الاختبار</button>
+      </div>`;
+    return;
+  }
+
+  const q = questions[quizStep - 1];
+  if (!q) return renderResult();
+  setProgress(Math.round((quizStep / total) * 100));
+
+  let inputHtml = '';
+  if (q.type === 'text') {
+    inputHtml = `<input type="text" class="input" id="quizInput" placeholder="${q.placeholder}" style="font-size:17px;height:56px;" onkeydown="if(event.key==='Enter')nextStep()" />`;
+  } else {
+    inputHtml = q.options.map(opt =>
+      `<button class="quiz-choice" onclick="selectChoice(this,'${opt.replace(/'/g,"\\'")}')"><span>${opt}</span></button>`
+    ).join('');
+  }
+
+  const backBtn = quizStep > 1
+    ? `<button onclick="quizStep--;renderQuiz();" style="font-size:14px;color:rgba(255,255,255,0.50);cursor:pointer;display:flex;align-items:center;gap:4px;" class="btn-ghost" style="padding:8px 12px;">→ رجوع</button>`
+    : '';
+
+  body.innerHTML = `
+    <div class="fade-in">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+        <span style="font-size:14px;color:rgba(255,255,255,0.50);font-weight:500;">سؤال ${quizStep} من ${total}</span>
+        ${backBtn}
+      </div>
+      <h3 style="font-size:22px;color:#fff;margin-bottom:24px;">${q.label}</h3>
+      <div id="choicesWrap">${inputHtml}</div>
+      <button class="btn-gold btn-h14" style="margin-top:24px;width:100%;" id="nextBtn" onclick="nextStep()" disabled>
+        ${quizStep === total ? 'إرسال الطلب' : 'التالي'}
+      </button>
+    </div>`;
+
+  if (q.type === 'text') {
+    const inp = document.getElementById('quizInput');
+    inp.focus();
+    inp.addEventListener('input', () => {
+      document.getElementById('nextBtn').disabled = !inp.value.trim();
+    });
+  }
+}
+
+function selectChoice(el, val) {
+  document.querySelectorAll('.quiz-choice').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  el.dataset.value = val;
+  document.getElementById('nextBtn').disabled = false;
+}
+
+async function nextStep() {
+  const q = questions[quizStep - 1];
+  if (!q) return;
+  let val = '';
+  if (q.type === 'text') {
+    val = document.getElementById('quizInput').value.trim();
+  } else {
+    const sel = document.querySelector('.quiz-choice.selected');
+    if (!sel) return;
+    val = sel.dataset.value;
+  }
+  if (!val) return;
+  quizAnswers[q.id] = val;
+
+  if (quizStep < questions.length) {
+    quizStep++;
+    renderQuiz();
+  } else {
+    // Submit
+    const btn = document.getElementById('nextBtn');
+    btn.disabled = true;
+    btn.textContent = 'جاري الإرسال...';
+    try {
+      const res = await fetch(SUBS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(quizAnswers),
+      });
+      const data = await res.json();
+      quizStep = questions.length + 1;
+      renderResult(data);
+    } catch {
+      const rdmOk = quizAnswers.rdm === 'قتل عشوائي';
+      const vdmOk = quizAnswers.vdm === 'تصديم عشوائي';
+      quizStep = questions.length + 1;
+      renderResult({ rdmCorrect: rdmOk, vdmCorrect: vdmOk, passed: rdmOk && vdmOk });
+    }
+  }
+}
+
+function renderResult(result) {
+  setProgress(100);
+  const passed = result && result.passed;
+  const rdmOk  = result && result.rdmCorrect;
+  const vdmOk  = result && result.vdmCorrect;
+  const name   = quizAnswers.name || '';
+
+  body.innerHTML = `
+    <div class="fade-in" style="text-align:center;">
+      <div style="width:96px;height:96px;margin:0 auto 24px;border-radius:50%;display:flex;align-items:center;justify-content:center;${passed ? 'background:rgba(242,165,21,0.15);box-shadow:0 0 40px rgba(242,165,21,0.25)' : 'background:rgba(239,68,68,0.12);box-shadow:0 0 40px rgba(239,68,68,0.15)'}">
+        ${passed
+          ? `<svg style="width:48px;height:48px;color:#f2a515;stroke:#f2a515;fill:none;" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`
+          : `<svg style="width:48px;height:48px;stroke:#ef4444;fill:none;" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`}
+      </div>
+      <h3 style="font-size:22px;color:#fff;margin-bottom:8px;">${passed ? 'أحسنت! اجتزت الاختبار' : 'لم تجتز الاختبار'}</h3>
+      <p style="color:rgba(255,255,255,0.65);margin-bottom:24px;font-size:15px;">
+        ${passed
+          ? `شكراً ${name}، طلبك تم استلامه. انضم لديسكورد السيرفر لمتابعة الطلب.`
+          : 'بعض إجاباتك كانت خاطئة. راجع قوانين السيرفر وأعد المحاولة.'}
+      </p>
+      <div style="margin-bottom:32px;text-align:right;">
+        ${answerRow('RDM = قتل عشوائي', rdmOk)}
+        ${answerRow('VDM = تصديم عشوائي', vdmOk)}
+      </div>
+      ${passed
+        ? `<a href="${DISCORD}" target="_blank" class="btn-discord btn-h14">
+             <svg style="width:22px;height:22px;fill:#fff;" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.12 18.12c2.08 1.524 4.1 2.45 6.088 3.062a.077.077 0 0 0 .084-.027c.47-.64.893-1.315 1.254-2.023a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.243 2.012a.076.076 0 0 0 .084.028c1.994-.612 4.013-1.538 6.094-3.062a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+             انضم للديسكورد
+           </a>`
+        : `<button class="btn-gold btn-h14" onclick="quizStep=0;quizAnswers={};renderQuiz();">أعد المحاولة</button>`}
+    </div>`;
+}
+
+function answerRow(label, correct) {
+  return `<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 16px;margin-bottom:8px;">
+    <span style="color:rgba(255,255,255,0.65);font-size:14px;">${label}</span>
+    ${correct
+      ? `<svg style="width:18px;height:18px;stroke:#f2a515;fill:none;" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`
+      : `<svg style="width:18px;height:18px;stroke:#ef4444;fill:none;" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`}
+  </div>`;
+}
+
+renderQuiz();
+</script>
+</body>
+</html>

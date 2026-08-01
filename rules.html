@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>قوانين السيرفر — LUNE ROLEPLAY</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar scrolled">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-logo">
+      <img src="logo.png" alt="LUNE" onerror="this.style.display='none'" />
+      <span class="navbar-logo-text font-display">LUNE</span>
+    </a>
+    <div class="navbar-links">
+      <a href="index.html">الرئيسية</a>
+      <a href="index.html#quiz">التقديم</a>
+      <a href="rules.html" style="color:var(--gold)">القوانين</a>
+    </div>
+    <a href="https://discord.gg/CXFx99aKjc" target="_blank" class="btn-nav-cta">انضم الآن</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="rules-hero">
+  <div class="rules-hero-bg"></div>
+  <div class="container-md fade-in">
+    <div class="badge badge-gold" style="margin-bottom:24px;">
+      <svg style="width:13px;height:13px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+      قوانين السيرفر
+    </div>
+    <h1 style="font-size:clamp(32px,6vw,52px);color:#fff;margin-bottom:16px;">القوانين والأنظمة</h1>
+    <p style="color:rgba(255,255,255,0.50);max-width:480px;margin:0 auto;font-size:14px;line-height:1.7;">
+      قراءة القوانين إلزامية قبل الانضمام — الجهل بالقانون لا يُعفي من العقوبة.
+    </p>
+  </div>
+</div>
+
+<!-- RULES SECTIONS -->
+<div class="container-sm" style="padding-bottom:96px;">
+  <div id="rulesContainer"></div>
+
+  <!-- Discord CTA -->
+  <div class="card-gold" style="padding:40px;text-align:center;margin-top:8px;" id="discordCta">
+    <p style="color:rgba(255,255,255,0.55);font-size:14px;margin-bottom:20px;">لديك سؤال أو تريد الإبلاغ عن مخالفة؟</p>
+    <a href="https://discord.gg/CXFx99aKjc" target="_blank" class="btn-gold btn-h11">تواصل معنا عبر ديسكورد</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="border-top:none;padding-top:0;">
+      <span>© <span id="year"></span> LUNE ROLEPLAY. جميع الحقوق محفوظة.</span>
+      <a href="index.html" style="color:rgba(255,255,255,0.40);font-size:12px;">← العودة للرئيسية</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const sections = [
+  {
+    color: '#f2a515',
+    icon: `<svg style="width:17px;height:17px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>`,
+    title: 'قواعد السلوك العام',
+    rules: [
+      'الاحترام المتبادل بين جميع اللاعبين داخل وخارج السيرفر.',
+      'ممنوع التنمر أو التحرش أو الإساءة اللفظية بأي شكل.',
+      'يجب البقاء في الشخصية (In Character) في جميع الأوقات داخل السيرفر.',
+      'ممنوع مشاركة معلومات خارج اللعبة (OOC) أثناء الجلسات.',
+      'ممنوع استغلال الثغرات أو الأخطاء البرمجية لصالحك.',
+    ],
+  },
+  {
+    color: '#ef4444',
+    icon: `<svg style="width:17px;height:17px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>`,
+    title: 'RDM & VDM',
+    rules: [
+      'RDM (Random Death Match): قتل أي لاعب بدون سبب منطقي داخل القصة ممنوع منعاً باتاً.',
+      'VDM (Vehicle Death Match): تصديم اللاعبين بالسيارات عمداً دون مبرر ممنوع.',
+      'يجب أن يكون لكل مواجهة سبب واضح ومبرر داخل القصة.',
+      'الانتقام العشوائي (Revenge Kill) بعد الموت ممنوع تماماً.',
+    ],
+  },
+  {
+    color: '#3b82f6',
+    icon: `<svg style="width:17px;height:17px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>`,
+    title: 'قواعد المركبات',
+    rules: [
+      'قيادة السيارات بشكل واقعي — ممنوع القيادة الجنونية بدون سبب.',
+      'احترام إشارات المرور والقوانين داخل المدينة.',
+      'ممنوع سرقة مركبات اللاعبين دون تفاعل روليبلاي مناسب.',
+      'المطاردات يجب أن تكون واقعية ومنطقية.',
+    ],
+  },
+  {
+    color: '#22c55e',
+    icon: `<svg style="width:17px;height:17px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>`,
+    title: 'التواصل والتفاعل',
+    rules: [
+      'استخدم الميكروفون بجودة معقولة — ممنوع الإزعاج المتعمد.',
+      'تحدث بلغة مناسبة لشخصيتك داخل القصة.',
+      'ممنوع الإفصاح عن معلومات OOC في قنوات الصوت داخل اللعبة.',
+      'التواصل مع الإدارة يكون عبر قنوات الدعم في ديسكورد فقط.',
+    ],
+  },
+  {
+    color: '#a78bfa',
+    icon: `<svg style="width:17px;height:17px;stroke:currentColor;fill:none;" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z"/></svg>`,
+    title: 'العقوبات',
+    rules: [
+      'تحذير شفهي للمخالفات البسيطة الأولى.',
+      'إيقاف مؤقت عند تكرار المخالفة أو ارتكاب مخالفة متوسطة.',
+      'حظر دائم عند المخالفات الجسيمة أو الاستخدام المتكرر للمخالفات.',
+      'قرارات الإدارة نهائية ويمكن التظلم عبر ديسكورد فقط.',
+    ],
+  },
+];
+
+const container = document.getElementById('rulesContainer');
+sections.forEach((s, i) => {
+  const div = document.createElement('div');
+  div.className = 'rule-section fade-in';
+  div.style.border = `1px solid ${s.color}22`;
+  div.style.animationDelay = `${i * 0.08}s`;
+  div.innerHTML = `
+    <div class="rule-header" style="background:${s.color}0d;border-bottom:1px solid ${s.color}18;">
+      <div class="rule-icon" style="background:${s.color}18;border:1px solid ${s.color}30;color:${s.color};">${s.icon}</div>
+      <h2 style="font-size:16px;color:#fff;">${s.title}</h2>
+    </div>
+    <ul class="rule-list" style="list-style:none;">
+      ${s.rules.map(r => `
+        <li>
+          <span class="rule-dot" style="background:${s.color};"></span>
+          ${r}
+        </li>`).join('')}
+    </ul>`;
+  container.appendChild(div);
+});
+</script>
+</body>
+</html>
